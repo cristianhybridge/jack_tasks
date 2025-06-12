@@ -1,0 +1,24 @@
+# Ignorar entorno virtual
+.venv/
+venv/
+env/
+
+# Ignorar archivos de configuración del IDE (PyCharm en este caso)
+.idea/
+
+# Ignorar cachés de Python
+__pycache__/
+*.pyc
+
+# Ignorar archivos de paquetes y distribución
+*.egg-info/
+dist/
+build/
+
+# Otros archivos comunes a ignorar en proyectos Python
+.DS_Store
+.env
+.mypy_cache/
+.pytest_cache/
+*.sqlite3
+*.log
