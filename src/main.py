@@ -6,9 +6,7 @@ from views.tasks_view import TaskManagementView
 from views.options_view import OptionsView
 
 class App(tk.Tk):
-    """
-    Clase principal de la aplicación que gestiona las diferentes vistas.
-    """
+    # Clase principal
     def __init__(self):
         super().__init__()
         self.title("Jack Purple Tasks App")
@@ -23,8 +21,7 @@ class App(tk.Tk):
         self._views = {} # Diccionario para guardar instancias de las vistas
 
         self._create_views()
-        self.show_view("main") # Muestra la primera vista al iniciar
-
+        self.show_view("main") # Vista principal al iniciar aplicacion
     def _create_views(self):
         """Crea instancias de todas las vistas."""
         self._views["main"] = MainView(self, self.show_view, self.current_username)
