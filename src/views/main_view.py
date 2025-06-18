@@ -5,6 +5,8 @@ class MainView(BaseView):
     def __init__(self, master, show_view_callback, current_username):
         super().__init__(master, show_view_callback, current_username)
         self.config(bg="#3e32a8")
+        
+        self._create_widgets()
 
     def _create_widgets(self):
         ttk.Label(self,

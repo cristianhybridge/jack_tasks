@@ -12,6 +12,8 @@ class OptionsView(BaseView):
         self.red_value = tk.IntVar(value=0)   # Valor inicial para Rojo
         self.green_value = tk.IntVar(value=0) # Valor inicial para Verde
         self.blue_value = tk.IntVar(value=0)  # Valor inicial para Azul
+        
+        self._create_widgets()
 
     def _create_widgets(self):
         welcome_message = f"Bienvenido, {self.current_username}"

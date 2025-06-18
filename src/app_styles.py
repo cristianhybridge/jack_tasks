@@ -30,6 +30,15 @@ def configure_styles():
     style.map("main_button.TButton",
               foreground=[('pressed', 'gray'), ('active', 'lightblue')],
               background=[('pressed', '!disabled', '#45a049'), ('active', '#5CB85C')])
+    
+    style.configure("submit_button.TButton",
+                    font=("Helvetica", 10, "bold"),
+                    foreground="white",
+                    background="#00ad23",
+                    padding=5)
+    style.map("submit_button.TButton",
+              foreground=[('pressed', 'gray'), ('active', 'lightblue')],
+              background=[('pressed', '!disabled', '#45a049'), ('active', '#5CB85C')])
 
     style.configure("secondary_button.TButton",
                     font=("Helvetica", 10, "bold"),
@@ -48,6 +57,21 @@ def configure_styles():
     style.map("danger_button_button.TButton",
               foreground=[('pressed', 'gray'), ('active', 'lightblue')],
               background=[('pressed', '!disabled', '#45a049'), ('active', '#5CB85C')])
+
+
+    style.configure("TaskTitle.TLabel",
+                    background="#f0f0f0", # Light grey background for each task
+                    foreground="#333333", # Darker text color
+                    font=("Helvetica", 12, "bold"),
+                    padding=5,
+                    relief="solid", # A subtle border
+                    borderwidth=1)
+    style.configure("TaskDetail.TLabel",
+                    background="#f0f0f0",
+                    foreground="#666666", # Lighter text for details
+                    font=("Helvetica", 10))
+    style.map("TaskTitle.TLabel",
+              background=[('active', '#e0e0e0')]) # Hover effect
 
     # Estilo para etiquetas de texto normal
     style.configure("basic_text.TLabel",

@@ -13,7 +13,6 @@ class BaseView(tk.Frame):
         self.show_view_callback = show_view_callback # La función para cambiar de vista
         self.current_username = current_username
 
-        self._create_widgets()
         self._setup_layout()
 
     def _create_widgets(self):

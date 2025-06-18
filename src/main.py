@@ -5,6 +5,9 @@ from views.main_view import MainView
 from views.tasks_view import TaskManagementView
 from views.options_view import OptionsView
 
+from repositories.tasks_repository import TasksRepository
+from services.tasks_service import TasksService
+
 class App(tk.Tk):
     # Clase principal
     def __init__(self):
@@ -13,6 +16,9 @@ class App(tk.Tk):
         self.geometry("1280x720") # Tamano de la ventana
         
         configure_styles() # Funcion para configurar estilos
+        
+        self.tasks_repository = TasksRepository() # Instancia de la clase TasksRepository
+        self.tasks_service = TasksService(self.tasks_repository) # Instancia del servicio, recibe el repositorio
         
         # -------------------------------
         self.current_username = "Cris"
@@ -25,7 +31,10 @@ class App(tk.Tk):
     def _create_views(self):
         """Crea instancias de todas las vistas."""
         self._views["main"] = MainView(self, self.show_view, self.current_username)
-        self._views["tasks"] = TaskManagementView(self, self.show_view, self.current_username)
+        self._views["tasks"] = TaskManagementView(self, 
+                                                  self.show_view, 
+                                                  self.current_username,
+                                                  self.tasks_service)
         self._views["options"] = OptionsView(self, self.show_view, self.current_username)
 
         # Empaqueta todas las vistas para que estén listas para ser mostradas
