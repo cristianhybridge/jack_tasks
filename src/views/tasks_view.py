@@ -1,4 +1,5 @@
-
+import datetime
+from tkcalendar import DateEntry
 from services.tasks_service import TasksService
 from views.base_view import BaseView
 import tkinter as tk
@@ -12,7 +13,16 @@ class TaskManagementView(BaseView):
         self.config(bg="#e0ffe0")
         
         self.tasks_service = tasks_service
+        
+        # Variables for entries
         self.task_title_entry = None
+        self.task_priority_entry = tk.StringVar(self) # Variable for storing radiogroup value
+        
+        # Variables for calendar
+        self.task_completion_date_var = tk.StringVar(self)
+        self.task_completion_date_hour_var = tk.StringVar(self, value="00")
+        self.task_completion_date_minute_var = tk.StringVar(self, value="00")
+        
         
         self._loaded_tasks = []
         
@@ -60,32 +70,134 @@ class TaskManagementView(BaseView):
         # Bind the scroll wheel for scrolling (for non-Windows OS, can be added with more binds)
         self.task_canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
-        # ------------------------------- ------------------------------- -------------------------------
+        # ------------------------------- Data input -------------------------------
 
-        self._load_tasks()
+        # Textboxes para agregar nuevos tasks
 
-        # Registra la entrada en la variable
+        ttk.Label(self, text="Título:", style="secondary_label.TLabel").pack(pady=(10, 0))
         self.task_title_entry = ttk.Entry(self,
                                           style="main_entry.TEntry")
         self.task_title_entry.pack(pady=10)
+
+        ttk.Label(self, text="Prioridad:", style="secondary_label.TLabel").pack(pady=(10, 0))
+        # Create a frame to hold the radio buttons for better layout control
+        priority_frame = ttk.Frame(self)
+        priority_frame.pack(pady=5)
+        
+        
+    # --- START RADIO BUTTONS ---
+
+        # Set initial value for the radio buttons
+        self.task_priority_entry.set("Normal") # Default selection
+
+        ttk.Radiobutton(priority_frame,
+                        text="Urgente",
+                        variable=self.task_priority_entry,
+                        value="Urgente",
+                        style="TCheckbutton"  # Radiobuttons can use TCheckbutton style
+                        ).pack(side="left", padx=10) # Pack them horizontally
+
+        ttk.Radiobutton(priority_frame,
+                        text="Importante",
+                        variable=self.task_priority_entry,
+                        value="Importante",
+                        style="TCheckbutton"
+                        ).pack(side="left", padx=10)
+
+        ttk.Radiobutton(priority_frame,
+                        text="Normal",
+                        variable=self.task_priority_entry,
+                        value="Normal",
+                        style="TCheckbutton"
+                        ).pack(side="left", padx=10)
+    # --- END RADIO BUTTONS ---
+
+    # --- START TIME PICKER ---
+
+        ttk.Label(self, text="Fecha límite:", style="secondary_label.TLabel").pack(pady=(10, 0))
+        date_time_frame = ttk.Frame(self)
+        date_time_frame.pack(pady=5)
+
+        # Date Picker
+        self.task_entity_completion_date_entry = DateEntry(date_time_frame,
+                                                           selectmode='day',
+                                                           date_pattern='yyyy-mm-dd',  # Still good for display
+                                                           state='readonly',
+                                                           font=('Helvetica', 10),
+                                                           background='darkblue',
+                                                           foreground='white',
+                                                           bordercolor='gray',
+                                                           headersbackground='darkblue',
+                                                           headersforeground='white')
+        self.task_entity_completion_date_entry.pack(side="left", padx=5)
+
+        # Hour Spinbox
+        self.task_completion_hour_entry = ttk.Spinbox(date_time_frame,
+                                                      from_=0, to=23,
+                                                      wrap=True,
+                                                      textvariable=self.task_completion_date_hour_var,
+                                                      width=3,
+                                                      format="%02.0f")
+        self.task_completion_hour_entry.pack(side="left")
+
+        ttk.Label(date_time_frame, text=":", style="secondary_label.TLabel").pack(side="left") # Separator
+
+        # Minute Spinbox
+        self.task_completion_minute_entry = ttk.Spinbox(date_time_frame,
+                                                        from_=0, to=59,
+                                                        wrap=True,
+                                                        textvariable=self.task_completion_date_minute_var,
+                                                        width=3,
+                                                        format="%02.0f")
+        self.task_completion_minute_entry.pack(side="left")
+
+    # --- END TIME PICKER ---
         
         ttk.Button(self, text="Agregar",
                    style="submit_button.TButton",
                    command=self._add_new_task
                    ).pack(pady=10)
         
+        self._load_tasks()
     
     def _add_new_task(self):
-        var_taskEntity = self.task_title_entry.get().strip() 
+        
+        # Registra la entrada en la variable
             # get obtiene el texto de task_title_entry
                 # strip elimina los espacios en blanco al inicio y al final
+        var_task_entity_title = self.task_title_entry.get().strip() 
+        var_task_entity_priority = self.task_priority_entry.get()
+        var_task_entity_completion_date = self.task_entity_completion_date_entry.get_date()
         
-        if not var_taskEntity:
+        var_completion_hour_str = self.task_completion_date_hour_var.get()
+        var_completion_minute_str = self.task_completion_date_minute_var.get()
+        
+        # Variable for joining complete datetime (date+hours+minutes)
+        var_complete_datetime = None
+        
+        if var_task_entity_completion_date: # Check if a date was actually selected
+            try:
+                selected_hour = int(var_completion_hour_str)
+                selected_minute = int(var_completion_minute_str)
+                # Combine the date object with a time object
+                var_complete_datetime = datetime.datetime.combine(
+                    var_task_entity_completion_date, 
+                    datetime.time(selected_hour, selected_minute))
+            except ValueError:
+                print("Internal error.")
+                # Consider showing a message box to the user
+                return
+
+        if not var_task_entity_title:
             print("Error: Entry cannot be empty.")
             return
         
         try:
-            new_task = TaskEntity(title=var_taskEntity, priority="Normal", is_active=True)
+            new_task = TaskEntity(title=var_task_entity_title,
+                                  priority=var_task_entity_priority,
+                                  is_active=True,
+                                  completion_date=var_complete_datetime,
+                                  created_at=datetime.datetime.now())
             
             query_task = self.tasks_service.add_task(new_task)
             print(f"Task added: {query_task}")
@@ -125,19 +237,36 @@ class TaskManagementView(BaseView):
             self.inner_task_frame.update_idletasks()
             self.task_canvas.config(scrollregion=self.task_canvas.bbox("all"))
             return
+        
+        self._loaded_tasks.reverse()
 
+        # This loop will create a frame for each register/task
+        # Reversed for displaying from the bottom to top
         for i, task in enumerate(self._loaded_tasks):
+            
             # Create a frame for each task to group its title and details
-            task_item_frame = ttk.Frame(self.inner_task_frame, style="TaskTitle.TLabel") # Use a style for the frame
-            task_item_frame.pack(fill="x", pady=2, padx=5) # Pack each task item
+            task_item_frame = tk.Frame(  # <-- CHANGED THIS LINE!
+                self.inner_task_frame,
+                background="lightgray",  # Make the background of THIS box light gray
+                borderwidth=1,           # Give THIS box a border 1 pixel thick
+                relief="solid"           # Make the border of THIS box a clear, solid line
+            )
 
-            # Display title
-            ttk.Label(task_item_frame, text=f"{i+1}. {task.title}", style="TaskTitle.TLabel", anchor="w") \
+            task_item_frame.pack(fill="x", pady=2, padx=5, side="top", ipadx=5, ipady=5)
+
+            ttk.Label(task_item_frame,
+                      text=f"{task.title}",
+                      style="TaskTitle.TLabel",
+                      anchor="w",
+                      background="lightgray") \
                 .pack(fill="x")
 
-            # Display details (priority, completion date, active status)
-            details_text = f"Priority: {task.priority} | Due: {task.completion_date if task.completion_date else 'N/A'} | Active: {'Yes' if task.is_active else 'No'}"
-            ttk.Label(task_item_frame, text=details_text, style="TaskDetail.TLabel", anchor="w") \
+            details_text = f"Creado el: {task.formatted_created_at} | Prioridad: {task.priority} | Terminar antes de: {task.formatted_completion_date if task.completion_date else 'N/A'} | Estado: {'Pendiente' if task.is_active else 'Completado'}"
+            ttk.Label(task_item_frame,
+                      text=details_text,
+                      style="TaskDetail.TLabel",
+                      anchor="w",
+                      background="lightgray") \
                 .pack(fill="x")
 
             # Add a separator if it's not the last task
