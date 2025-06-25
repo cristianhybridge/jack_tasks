@@ -12,7 +12,7 @@ class MainView(BaseView):
         ttk.Label(self,
                   text="Jack Purple Tasks App",
                   style="main_title.TLabel"
-                  ).pack(pady=50)
+                  ).pack(pady=(50,20))
         
         ttk.Button(self, 
                    text="Ir a tareas",

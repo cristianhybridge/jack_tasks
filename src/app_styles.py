@@ -20,6 +20,11 @@ def configure_styles():
                     foreground="#3e32a8",
                     background="lightblue",
                     padding=10)
+    
+    # Estilo para background de frames
+        # Background frame TaskView
+    style.configure("taskview_frame.TFrame",
+                    background="#e0ffe0")
 
     # Estilo para botones
     style.configure("main_button.TButton",

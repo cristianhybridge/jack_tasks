@@ -13,7 +13,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Jack Purple Tasks App")
-        self.geometry("1280x720") # Tamano de la ventana
+        self.geometry("1280x800") # Tamano de la ventana
         
         configure_styles() # Funcion para configurar estilos
         
