@@ -1,12 +1,15 @@
 import tkinter as tk
 
 from app_styles import configure_styles
+from models.users_entity import UserEntity
+from repositories.users_repository import UsersRepository
 from views.main_view import MainView
 from views.tasks_view import TaskManagementView
 from views.options_view import OptionsView
 
 from repositories.tasks_repository import TasksRepository
 from services.tasks_service import TasksService
+from services.users_service import UsersService
 
 class App(tk.Tk):
     # Clase principal
@@ -18,16 +21,25 @@ class App(tk.Tk):
         configure_styles() # Funcion para configurar estilos
         
         self.tasks_repository = TasksRepository() # Instancia de la clase TasksRepository
-        self.tasks_service = TasksService(self.tasks_repository) # Instancia del servicio, recibe el repositorio
+        self.users_repository = UsersRepository() # Instancia de la clase UsersRepository
+
+        # Instancia del servicio, recibe los repositorios
+        self.tasks_service = (
+            TasksService(self.tasks_repository, self.users_repository)) 
         
-        # -------------------------------
-        self.current_username = "Cris"
+        # ------------------------------- Hardcodeado para pruebas
+        self.current_username = "None"
         # -------------------------------
         self._current_view = None
         self._views = {} # Diccionario para guardar instancias de las vistas
 
         self._create_views()
         self.show_view("main") # Vista principal al iniciar aplicacion
+        
+        # ------------------------------- Hardcodeado para pruebas
+    def _insert_user_test(self):
+        self.users_repository.add_user(UserEntity("admin", 1))
+        self.current_username = UsersService.
     def _create_views(self):
         """Crea instancias de todas las vistas."""
         self._views["main"] = MainView(self, self.show_view, self.current_username)

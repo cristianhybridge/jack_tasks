@@ -10,7 +10,7 @@ def configure_styles():
     style = ttk.Style()
 
     # Puedes elegir un tema global si lo deseas
-    # style.theme_use("clam") # O "alt", "default", "winnative" (solo Windows)
+    style.theme_use("clam") # O "alt", "default", "winnative" (solo Windows)
 
     # Estilo para el título principal
     

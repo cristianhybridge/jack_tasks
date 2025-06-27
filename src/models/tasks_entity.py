@@ -9,6 +9,7 @@ class TaskEntity:
     title: str
     priority: str
     created_at: datetime
+    created_by: int # Referencia a user_id de users_entity
     
     # Campos con valor por defecto
     # En este caso como no estamos usando SQL, puse un uuid para que no se repitiera

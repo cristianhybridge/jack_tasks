@@ -1,6 +1,7 @@
 import datetime
 from tkcalendar import DateEntry
 from services.tasks_service import TasksService
+from services.users_service import UsersService
 from views.base_view import BaseView
 import tkinter as tk
 from tkinter import ttk
@@ -8,7 +9,7 @@ from tkinter import ttk
 from models.tasks_entity import TaskEntity
 
 class TaskManagementView(BaseView):
-    def __init__(self, master, show_view_callback, current_username, tasks_service: TasksService):
+    def __init__(self, master, show_view_callback, current_username, tasks_service: TasksService, users_service: UsersService):
         super().__init__(master, show_view_callback, current_username)
         self.config(bg="#e0ffe0")
         
@@ -134,17 +135,17 @@ class TaskManagementView(BaseView):
 
         # Date Picker
         # Inherits from date_time_frame
-        self.task_entity_completion_date_entry = DateEntry(date_time_frame,
-                                                           selectmode='day',
-                                                           date_pattern='yyyy-mm-dd',  # Still good for display
-                                                           state='readonly',
-                                                           font=('Helvetica', 10),
-                                                           background='darkblue',
-                                                           foreground='white',
-                                                           bordercolor='gray',
-                                                           headersbackground='darkblue',
-                                                           headersforeground='white')
-        self.task_entity_completion_date_entry.pack(side="left", padx=5)
+        self.task_completion_date_entry = DateEntry(date_time_frame,
+                                                    selectmode='day',
+                                                    date_pattern='yyyy-mm-dd',  # Still good for display
+                                                    state='readonly',
+                                                    font=('Helvetica', 10),
+                                                    background='darkblue',
+                                                    foreground='white',
+                                                    bordercolor='gray',
+                                                    headersbackground='darkblue',
+                                                    headersforeground='white')
+        self.task_completion_date_entry.pack(side="left", padx=5)
 
         # Hour Spinbox
         self.task_completion_hour_entry = ttk.Spinbox(date_time_frame,
@@ -216,7 +217,8 @@ class TaskManagementView(BaseView):
                 # strip elimina los espacios en blanco al inicio y al final
         var_task_entity_title = self.task_title_entry.get("1.0", "end-1c").strip() 
         var_task_entity_priority = self.task_priority_entry.get()
-        var_task_entity_completion_date = self.task_entity_completion_date_entry.get_date()
+        var_task_entity_completion_date = self.task_completion_date_entry.get_date()
+        var_task_user_id = self.task_user_id_entry.get()
         
         var_completion_hour_str = self.task_completion_date_hour_var.get()
         var_completion_minute_str = self.task_completion_date_minute_var.get()
@@ -246,7 +248,8 @@ class TaskManagementView(BaseView):
                                   priority=var_task_entity_priority,
                                   is_active=True,
                                   completion_date=var_complete_datetime,
-                                  created_at=datetime.datetime.now())
+                                  created_at=datetime.datetime.now(),
+                                  created_by=var_user_id)
             
             query_task = self.tasks_service.add_task(new_task)
             
@@ -276,6 +279,12 @@ class TaskManagementView(BaseView):
         # 
         # for x in self.tasks_service.get_tasks():
         #     print(x)
+        
+    def _display_usernames(self):
+        users = self.users_repository.get_users()
+        
+        for user in users:
+            self.task_user_id_entry['values'] = [user.id, user.username]
 
     def _display_tasks(self):
         # Clear existing task widgets from the inner_task_frame
@@ -312,7 +321,12 @@ class TaskManagementView(BaseView):
                       background="lightgray") \
                 .pack(fill="x")
 
-            details_text = f"Creado el: {task.formatted_created_at} | Prioridad: {task.priority} | Terminar antes de: {task.formatted_completion_date if task.completion_date else 'N/A'} | Estado: {'Pendiente' if task.is_active else 'Completado'}"
+            details_text = \
+                (f"Creado el: {task.formatted_created_at} "
+                 f"| Prioridad: {task.priority} "
+                 f"| Terminar antes de: {task.formatted_completion_date if task.completion_date else 'N/A'} "
+                 f"| Estado: {'Pendiente' if task.is_active else 'Completado'}"
+                 f"| Creado por: {self.current_username}")
             ttk.Label(task_item_frame,
                       text=details_text,
                       style="TaskDetail.TLabel",
