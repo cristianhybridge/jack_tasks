@@ -30,24 +30,24 @@ class TaskManagementView(BaseView):
         # Method for the UI, similar to the html part in a razor component
             # And yes Hybridge teachers, 
         # I'm specifying these kind of paralelisms to make the code more readable to myself at least
+        self._create_widgets()
         self._build_ui()
 
 # ----------------------------------- Data loading and display -------------------------------
 
-
-    def _build_ui(self):
+    def _create_widgets(self):
     # ------------------------------- FRAMES and CANVAS -------------------------------
         # Left frame: To be completed TASKS
-        left_frame = tk.Frame(self, bg="#e0ffe0")
+        self.left_frame = tk.Frame(self, bg="#e0ffe0")
     
         # Right frame: Completed TASKS
-        right_frame = tk.Frame(self, bg="#e0ffe0")
+        self.right_frame = tk.Frame(self, bg="#e0ffe0")
 
         # Frame: topleft_left_frame
-        self.topleft_left_frame = tk.Frame(left_frame, bg="#e0ffe0")
+        self.topleft_left_frame = tk.Frame(self.left_frame, bg="#e0ffe0")
 
         # Frame: task_list_frame
-        self.task_list_frame = ttk.Frame(left_frame)
+        self.task_list_frame = ttk.Frame(self.left_frame)
         
         # Canvas: task_canvas
         self.task_canvas = tk.Canvas(self.task_list_frame, bg="#e0ffe0", bd=0, highlightthickness=0)
@@ -63,9 +63,9 @@ class TaskManagementView(BaseView):
 
 
         # Frame: data_input_frame_left
-        self.data_input_frame_left = ttk.Frame(left_frame, style="taskview_frame.TFrame")
+        self.data_input_frame_left = ttk.Frame(self.left_frame, style="taskview_frame.TFrame")
         # Frame: data_input_frame_right
-        self.data_input_frame_right = ttk.Frame(left_frame, style="taskview_frame.TFrame")
+        self.data_input_frame_right = ttk.Frame(self.left_frame, style="taskview_frame.TFrame")
 
         self.priority_frame = ttk.Frame(self.data_input_frame_right)
 
@@ -131,7 +131,7 @@ class TaskManagementView(BaseView):
    
     # ------------------------------- BUTTONS -------------------------------
         # Button: "Ajustes"
-        self.settings_button = ttk.Button(right_frame,
+        self.settings_button = ttk.Button(self.right_frame,
                                           text="Ajustes",
                                           style="secondary_button.TButton",
                                           command=lambda: self.navigate_to("options"))
@@ -142,7 +142,7 @@ class TaskManagementView(BaseView):
                                       style="main_button.TButton",
                                       command=lambda: self.navigate_to("main"))
 
-        self.add_button = ttk.Button(left_frame, text="Agregar",
+        self.add_button = ttk.Button(self.left_frame, text="Agregar",
                                      style="submit_button.TButton",
                                      command=self._add_new_task)
     
@@ -173,12 +173,17 @@ class TaskManagementView(BaseView):
                                             orient="vertical", 
                                             command=self.task_canvas.yview)
     
+    # Una vez cargados todos los frames, procedemos a desplegar los tasks
+        self._load_tasks()
+    
+    
+    def _build_ui(self):
     # ------------------------------- ------ -------------------------------
     # ------------------------------- Layout -------------------------------
     # ------------------------------- ------ -------------------------------
         # Packing frames
-        left_frame.pack(side="left", fill="both", padx=10)
-        right_frame.pack(side="right", fill="both", padx=10)
+        self.left_frame.pack(side="left", fill="both", padx=10)
+        self.right_frame.pack(side="right", fill="both", padx=10)
     
     # ------------------------------- CENTERED UI -------------------------------
         
@@ -257,10 +262,6 @@ class TaskManagementView(BaseView):
     
         self.add_button.pack(padx=10)
 
-    
-        # Una vez cargados todos los frames, procedemos a desplegar los tasks
-        self._load_tasks()
-    
     def _add_new_task(self):
         
         # Registra la entrada en la variable
