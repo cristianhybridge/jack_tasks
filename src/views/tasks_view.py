@@ -37,14 +37,18 @@ class TaskManagementView(BaseView):
 
     def _create_widgets(self):
     # ------------------------------- FRAMES and CANVAS -------------------------------
+        # Main fraime, central frame
+        self.main_frame = tk.Frame(self, bg="#e0ffe0") 
+        
         # Left frame: To be completed TASKS
         self.left_frame = tk.Frame(self, bg="#e0ffe0")
-    
+
+        # Introduce a new frame for the very top row of the left_frame
+        self.left_top_center_frame = tk.Frame(self.left_frame, bg="#e0ffe0") # Use a different bg for debugging if needed
+        self.left_top_left_frame = tk.Frame(self.left_top_center_frame, bg="#e0ffe0") # Use a different bg for debugging if needed
+
         # Right frame: Completed TASKS
         self.right_frame = tk.Frame(self, bg="#e0ffe0")
-
-        # Frame: topleft_left_frame
-        self.topleft_left_frame = tk.Frame(self.left_frame, bg="#e0ffe0")
 
         # Frame: task_list_frame
         self.task_list_frame = ttk.Frame(self.left_frame)
@@ -112,7 +116,7 @@ class TaskManagementView(BaseView):
                                                         format="%02.0f")
     # ------------------------------- LABELS -------------------------------
         # Label: "Administrar tareas"
-        self.admin_tasks_label = ttk.Label(self,
+        self.admin_tasks_label = ttk.Label(self.main_frame,
                                            text="Administrar tareas",
                                            style="main_title.TLabel")
 
@@ -120,7 +124,7 @@ class TaskManagementView(BaseView):
         self.task_description_label = ttk.Label(self.data_input_frame_left, text="Describe tu tarea:", style="secondary_label.TLabel")
 
         # Label: "Prioridad:"
-        self.priority_label = ttk.Label(self.data_input_frame_right, text="Prioridad:", style="secondary_label.TLabel")
+        self.priority_label = ttk.Label(self.priority_frame, text="Prioridad:", style="secondary_label.TLabel")
 
         # Label: "Fecha límite:"
         self.due_date_label = ttk.Label(self.data_input_frame_right, text="Fecha límite:", style="secondary_label.TLabel")
@@ -137,12 +141,12 @@ class TaskManagementView(BaseView):
                                           command=lambda: self.navigate_to("options"))
 
         # Button: "Volver"
-        self.back_button = ttk.Button(self.topleft_left_frame,
+        self.back_button = ttk.Button(self.left_top_left_frame,
                                       text="Volver",
                                       style="main_button.TButton",
                                       command=lambda: self.navigate_to("main"))
 
-        self.add_button = ttk.Button(self.left_frame, text="Agregar",
+        self.add_button = ttk.Button(self.data_input_frame_right, text="Agregar",
                                      style="submit_button.TButton",
                                      command=self._add_new_task)
     
@@ -182,12 +186,15 @@ class TaskManagementView(BaseView):
     # ------------------------------- Layout -------------------------------
     # ------------------------------- ------ -------------------------------
         # Packing frames
+        self.main_frame.pack(fill="both")
         self.left_frame.pack(side="left", fill="both", padx=10)
         self.right_frame.pack(side="right", fill="both", padx=10)
+        self.left_top_center_frame.pack(side="top", fill="x", pady=5) # This frame occupies the very top of left_frame
+        self.left_top_left_frame.pack(side="left", fill="x", pady=5) # This frame occupies the very top of left_frame
     
     # ------------------------------- CENTERED UI -------------------------------
         
-        self.admin_tasks_label.pack(pady=(50,20))
+        self.admin_tasks_label.pack(side="top", pady=(50,0))
     
     # ------------------------------- RIGHT FRAME -------------------------------
         
@@ -195,9 +202,7 @@ class TaskManagementView(BaseView):
     
     # ------------------------------- LEFT FRAME -------------------------------
         
-        self.topleft_left_frame.pack(side="left", fill="y")
-    
-        self.back_button.pack(pady=10)
+        self.back_button.pack(pady=5)
     
     # ------------------------------- Data loading and display -------------------------------
         
@@ -210,8 +215,6 @@ class TaskManagementView(BaseView):
         self.task_scrollbar.pack(side="right", fill="y")
         self.task_canvas.configure(yscrollcommand=self.task_scrollbar.set)
     
-    
-    
         # Packing data input frames
         self.data_input_frame_left.pack(side="left", pady=10, padx=10)
         self.data_input_frame_right.pack(side="right", pady=10, padx=10)
@@ -220,7 +223,6 @@ class TaskManagementView(BaseView):
         
         self.task_title_entry.pack(pady=10, fill="x", expand=True)
     
-    
         # Frame: priority_frame (to hold radio buttons)
         self.priority_frame.pack(pady=5)
         
@@ -228,39 +230,33 @@ class TaskManagementView(BaseView):
     
         self.due_date_label.pack(pady=(10, 0))
     
-        
         self.date_time_frame.pack(pady=5)
-    
         
         self.task_completion_date_entry.pack(side="left", padx=5)
     
-        
         self.task_completion_hour_entry.pack(side="left")
     
-        
         self.time_separator_label.pack(side="left")
     
-        
         self.task_completion_minute_entry.pack(side="left")
     
     # --- END TIME PICKER ---
     
     # --- START RADIO BUTTONS ---
-        self.priority_label.pack(pady=(10, 0))
+    
+        self.priority_label.pack(side="top", pady=5)
     
         self.task_priority_entry.set("Normal") # Default selection
         
         self.priority_button_urgente.pack(side="left", padx=10)
-    
         
         self.priority_button_importante.pack(side="left", padx=10)
-    
         
         self.priority_button_normal.pack(side="left", padx=10)
         
     # --- END RADIO BUTTONS ---
-    
         self.add_button.pack(padx=10)
+    
 
     def _add_new_task(self):
         
