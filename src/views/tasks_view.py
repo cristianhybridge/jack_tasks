@@ -36,108 +36,57 @@ class TaskManagementView(BaseView):
 
 
     def _build_ui(self):
-        # Creating left and right frames
-        
+    # ------------------------------- FRAMES and CANVAS -------------------------------
         # Left frame: To be completed TASKS
         left_frame = tk.Frame(self, bg="#e0ffe0")
-        
+    
         # Right frame: Completed TASKS
         right_frame = tk.Frame(self, bg="#e0ffe0")
 
-        left_frame.pack(side="left", fill="both", padx=10)
-        right_frame.pack(side="right", fill="both", padx=10)
-        
-    # ------------------------------- CENTERED UI -------------------------------
-        ttk.Label(self,
-                  text="Administrar tareas",
-                  style="main_title.TLabel"
-                  ).pack(pady=(50,20))
-
-    # ------------------------------- RIGHT FRAME -------------------------------
-
-        ttk.Button(right_frame, 
-                   text="Ajustes",
-                   style="secondary_button.TButton",
-                   command=lambda: self.navigate_to("options")
-                   ).pack(pady=10)
-        
-    # ------------------------------- LEFT FRAME -------------------------------
+        # Frame: topleft_left_frame
         self.topleft_left_frame = tk.Frame(left_frame, bg="#e0ffe0")
-        self.topleft_left_frame.pack(side="left", fill="y")
-        
-        ttk.Button(self.topleft_left_frame,
-                   text="Volver",
-                   style="main_button.TButton",
-                   command=lambda: self.navigate_to("main")
-                   ).pack(pady=10)
-        
-        # ------------------------------- Data loading and display -------------------------------
-        # Create a frame to hold the scrollable list of tasks
+
+        # Frame: task_list_frame
         self.task_list_frame = ttk.Frame(left_frame)
-        self.task_list_frame.pack(pady=10, padx=10, fill="x", expand=True)
-
-        # Create a Canvas for the scrollable region
-            # Inherits from task_list_frame
+        
+        # Canvas: task_canvas
         self.task_canvas = tk.Canvas(self.task_list_frame, bg="#e0ffe0", bd=0, highlightthickness=0)
-        self.task_canvas.pack(side="left", fill="x", expand=True)
 
-        # Add a scrollbar to the canvas
-            # Inherits from task_list_frame
-        self.task_scrollbar = ttk.Scrollbar(self.task_list_frame, orient="vertical", command=self.task_canvas.yview)
-        self.task_scrollbar.pack(side="right", fill="y")
-        self.task_canvas.configure(yscrollcommand=self.task_scrollbar.set)
-
-        # Create another frame INSIDE the canvas to hold the task items
-        # This is where the actual task labels will go
-            # Inherits from task_canvas
-        self.inner_task_frame = ttk.Frame(self.task_canvas, style="TFrame") # You might want to define a style for this frame
-        self.task_canvas.create_window((0, 0), window=self.inner_task_frame, anchor="nw", width=self.task_canvas.winfo_width())
-
-        # Bind the configure event of the canvas to update the inner frame's width
+        # Bindings (these are not widgets, so no separate variable for them)
         self.task_canvas.bind("<Configure>", self._on_canvas_configure)
-        # Bind the scroll wheel for scrolling (for non-Windows OS, can be added with more binds)
         self.task_canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+    
+        # Frame: inner_task_frame
+        self.general_task_frame = ttk.Frame(self.task_canvas, style="TFrame")
+    
+        self.task_canvas.create_window((0, 0), window=self.general_task_frame, anchor="nw", width=self.task_canvas.winfo_width())
 
-        # ------------------------------- Data input -------------------------------
 
-        # Frame for data input
+        # Frame: data_input_frame_left
         self.data_input_frame_left = ttk.Frame(left_frame, style="taskview_frame.TFrame")
+        # Frame: data_input_frame_right
         self.data_input_frame_right = ttk.Frame(left_frame, style="taskview_frame.TFrame")
-        
-        self.data_input_frame_left.pack(side="left", pady=10, padx=10)
-        self.data_input_frame_right.pack(side="right", pady=10, padx=10)
-        
-        ttk.Label(self.data_input_frame_left, text="Describe tu tarea:", style="secondary_label.TLabel").pack(pady=(10, 0))
-        
-        # Textboxes for adding new tasks
-        self.task_title_entry = tk.Text(self.data_input_frame_left, # Assuming you meant to put it inside this frame
-                                        width=35,   # Width in characters (approx.)
-                                        height=5,   # Height in lines
-                                        wrap="word", # Wraps text at word boundaries
+
+        self.priority_frame = ttk.Frame(self.data_input_frame_right)
+
+        # Frame: date_time_frame
+        self.date_time_frame = ttk.Frame(self.data_input_frame_right)
+    # ------------------------------- ENTRIES -------------------------------
+        # Textbox: task_title_entry
+        self.task_title_entry = tk.Text(self.data_input_frame_left,
+                                        width=35,
+                                        height=5,
+                                        wrap="word",
                                         font=("Helvetica", 9),
-                                        bg="white", # Background color
-                                        fg="black", # Foreground (text) color
+                                        bg="white",
+                                        fg="black",
                                         borderwidth=1,
-                                        relief="solid"
-                                        )
-        self.task_title_entry.pack(pady=10, fill="x", expand=True)
+                                        relief="solid")
 
-        ttk.Label(self.data_input_frame_right, text="Prioridad:", style="secondary_label.TLabel").pack(pady=(10, 0))
-        # Create a frame to hold the radio buttons for better layout control
-        priority_frame = ttk.Frame(self.data_input_frame_right)
-        priority_frame.pack(pady=5)
-
-    # --- START TIME PICKER ---
-
-        ttk.Label(self.data_input_frame_right, text="Fecha límite:", style="secondary_label.TLabel").pack(pady=(10, 0))
-        date_time_frame = ttk.Frame(self.data_input_frame_right)
-        date_time_frame.pack(pady=5)
-
-        # Date Picker
-        # Inherits from date_time_frame
-        self.task_completion_date_entry = DateEntry(date_time_frame,
+        # Date Picker: task_completion_date_entry
+        self.task_completion_date_entry = DateEntry(self.date_time_frame,
                                                     selectmode='day',
-                                                    date_pattern='yyyy-mm-dd',  # Still good for display
+                                                    date_pattern='yyyy-mm-dd',
                                                     state='readonly',
                                                     font=('Helvetica', 10),
                                                     background='darkblue',
@@ -145,69 +94,171 @@ class TaskManagementView(BaseView):
                                                     bordercolor='gray',
                                                     headersbackground='darkblue',
                                                     headersforeground='white')
-        self.task_completion_date_entry.pack(side="left", padx=5)
 
-        # Hour Spinbox
-        self.task_completion_hour_entry = ttk.Spinbox(date_time_frame,
+        # Hour Spinbox: task_completion_hour_entry
+        self.task_completion_hour_entry = ttk.Spinbox(self.date_time_frame,
                                                       from_=0, to=23,
                                                       wrap=True,
-                                                      textvariable=self.task_completion_date_hour_var,
+                                                      textvariable=self.task_completion_date_hour_var, # Make sure this var is defined!
                                                       width=3,
                                                       format="%02.0f")
-        self.task_completion_hour_entry.pack(side="left")
 
-        ttk.Label(date_time_frame, text=":", style="secondary_label.TLabel").pack(side="left") # Separator
-
-        # Minute Spinbox
-        self.task_completion_minute_entry = ttk.Spinbox(date_time_frame,
+        # Minute Spinbox: task_completion_minute_entry
+        self.task_completion_minute_entry = ttk.Spinbox(self.date_time_frame,
                                                         from_=0, to=59,
                                                         wrap=True,
-                                                        textvariable=self.task_completion_date_minute_var,
+                                                        textvariable=self.task_completion_date_minute_var, # Make sure this var is defined!
                                                         width=3,
                                                         format="%02.0f")
-        self.task_completion_minute_entry.pack(side="left")
+    # ------------------------------- LABELS -------------------------------
+        # Label: "Administrar tareas"
+        self.admin_tasks_label = ttk.Label(self,
+                                           text="Administrar tareas",
+                                           style="main_title.TLabel")
 
-    # --- END TIME PICKER ---
+        # Label: "Describe tu tarea:"
+        self.task_description_label = ttk.Label(self.data_input_frame_left, text="Describe tu tarea:", style="secondary_label.TLabel")
+
+        # Label: "Prioridad:"
+        self.priority_label = ttk.Label(self.data_input_frame_right, text="Prioridad:", style="secondary_label.TLabel")
+
+        # Label: "Fecha límite:"
+        self.due_date_label = ttk.Label(self.data_input_frame_right, text="Fecha límite:", style="secondary_label.TLabel")
+
+        # Label: Separator for time
+        self.time_separator_label = ttk.Label(self.date_time_frame, text=":", style="secondary_label.TLabel")
+
+   
+    # ------------------------------- BUTTONS -------------------------------
+        # Button: "Ajustes"
+        self.settings_button = ttk.Button(right_frame,
+                                          text="Ajustes",
+                                          style="secondary_button.TButton",
+                                          command=lambda: self.navigate_to("options"))
+
+        # Button: "Volver"
+        self.back_button = ttk.Button(self.topleft_left_frame,
+                                      text="Volver",
+                                      style="main_button.TButton",
+                                      command=lambda: self.navigate_to("main"))
+
+        self.add_button = ttk.Button(left_frame, text="Agregar",
+                                     style="submit_button.TButton",
+                                     command=self._add_new_task)
+    
+        # Radiobutton: Urgente
+        self.priority_button_urgente = ttk.Radiobutton(self.priority_frame,
+                                                       text="Urgente",
+                                                       variable=self.task_priority_entry,
+                                                       value="Urgente",
+                                                       style="TCheckbutton")
+
+        # Radiobutton: Importante
+        self.priority_button_importante = ttk.Radiobutton(self.priority_frame,
+                                                          text="Importante",
+                                                          variable=self.task_priority_entry,
+                                                          value="Importante",
+                                                          style="TCheckbutton")
+
+        # Radiobutton: Normal
+        self.priority_button_normal = ttk.Radiobutton(self.priority_frame,
+                                                      text="Normal",
+                                                      variable=self.task_priority_entry,
+                                                      value="Normal",
+                                                      style="TCheckbutton")
+
+    
+    # ------------------------------- SCROLLBAR -------------------------------
+        self.task_scrollbar = ttk.Scrollbar(self.task_list_frame, 
+                                            orient="vertical", 
+                                            command=self.task_canvas.yview)
+    
+    # ------------------------------- ------ -------------------------------
+    # ------------------------------- Layout -------------------------------
+    # ------------------------------- ------ -------------------------------
+        # Packing frames
+        left_frame.pack(side="left", fill="both", padx=10)
+        right_frame.pack(side="right", fill="both", padx=10)
+    
+    # ------------------------------- CENTERED UI -------------------------------
         
+        self.admin_tasks_label.pack(pady=(50,20))
+    
+    # ------------------------------- RIGHT FRAME -------------------------------
+        
+        self.settings_button.pack(pady=10)
+    
+    # ------------------------------- LEFT FRAME -------------------------------
+        
+        self.topleft_left_frame.pack(side="left", fill="y")
+    
+        self.back_button.pack(pady=10)
+    
+    # ------------------------------- Data loading and display -------------------------------
+        
+        self.task_list_frame.pack(pady=10, padx=10, fill="x", expand=True)
+    
+        # Canvas: task_canvas
+        self.task_canvas.pack(side="left", fill="x", expand=True)
+    
+        # Scrollbar: task_scrollbar
+        self.task_scrollbar.pack(side="right", fill="y")
+        self.task_canvas.configure(yscrollcommand=self.task_scrollbar.set)
+    
+    
+    
+        # Packing data input frames
+        self.data_input_frame_left.pack(side="left", pady=10, padx=10)
+        self.data_input_frame_right.pack(side="right", pady=10, padx=10)
+    
+        self.task_description_label.pack(pady=(10, 0))
+        
+        self.task_title_entry.pack(pady=10, fill="x", expand=True)
+    
+    
+        # Frame: priority_frame (to hold radio buttons)
+        self.priority_frame.pack(pady=5)
+        
+    # --- START TIME PICKER ---
+    
+        self.due_date_label.pack(pady=(10, 0))
+    
+        
+        self.date_time_frame.pack(pady=5)
+    
+        
+        self.task_completion_date_entry.pack(side="left", padx=5)
+    
+        
+        self.task_completion_hour_entry.pack(side="left")
+    
+        
+        self.time_separator_label.pack(side="left")
+    
+        
+        self.task_completion_minute_entry.pack(side="left")
+    
+    # --- END TIME PICKER ---
+    
     # --- START RADIO BUTTONS ---
-
-        # Set initial value for the radio buttons
-            # Inherits from priority_frame
+        self.priority_label.pack(pady=(10, 0))
+    
         self.task_priority_entry.set("Normal") # Default selection
-
-        ttk.Radiobutton(priority_frame,
-                        text="Urgente",
-                        variable=self.task_priority_entry,
-                        value="Urgente",
-                        style="TCheckbutton"  # Radiobuttons can use TCheckbutton style
-                        ).pack(side="left", padx=10) # Pack them horizontally
-
-        ttk.Radiobutton(priority_frame,
-                        text="Importante",
-                        variable=self.task_priority_entry,
-                        value="Importante",
-                        style="TCheckbutton"
-                        ).pack(side="left", padx=10)
-
-        ttk.Radiobutton(priority_frame,
-                        text="Normal",
-                        variable=self.task_priority_entry,
-                        value="Normal",
-                        style="TCheckbutton"
-                        ).pack(side="left", padx=10)
+        
+        self.priority_button_urgente.pack(side="left", padx=10)
+    
+        
+        self.priority_button_importante.pack(side="left", padx=10)
+    
+        
+        self.priority_button_normal.pack(side="left", padx=10)
         
     # --- END RADIO BUTTONS ---
+    
+        self.add_button.pack(padx=10)
 
-
-        
-        ttk.Button(left_frame, text="Agregar",
-                   style="submit_button.TButton",
-                   command=self._add_new_task
-                   ).pack(pady=10)
-
-        # ------------------------------- Layout -------------------------------
-
-        
+    
+        # Una vez cargados todos los frames, procedemos a desplegar los tasks
         self._load_tasks()
     
     def _add_new_task(self):
@@ -218,7 +269,7 @@ class TaskManagementView(BaseView):
         var_task_entity_title = self.task_title_entry.get("1.0", "end-1c").strip() 
         var_task_entity_priority = self.task_priority_entry.get()
         var_task_entity_completion_date = self.task_completion_date_entry.get_date()
-        var_task_user_id = self.task_user_id_entry.get()
+        var_task_user_id = self.current_username
         
         var_completion_hour_str = self.task_completion_date_hour_var.get()
         var_completion_minute_str = self.task_completion_date_minute_var.get()
@@ -249,7 +300,7 @@ class TaskManagementView(BaseView):
                                   is_active=True,
                                   completion_date=var_complete_datetime,
                                   created_at=datetime.datetime.now(),
-                                  created_by=var_user_id)
+                                  created_by=var_task_user_id)
             
             query_task = self.tasks_service.add_task(new_task)
             
@@ -275,26 +326,15 @@ class TaskManagementView(BaseView):
         else:
             print("No se encontraron datos.")
         
-        # print(self._loaded_tasks)
-        # 
-        # for x in self.tasks_service.get_tasks():
-        #     print(x)
-        
-    def _display_usernames(self):
-        users = self.users_repository.get_users()
-        
-        for user in users:
-            self.task_user_id_entry['values'] = [user.id, user.username]
-
     def _display_tasks(self):
         # Clear existing task widgets from the inner_task_frame
-        for widget in self.inner_task_frame.winfo_children():
+        for widget in self.general_task_frame.winfo_children():
             widget.destroy()
 
         if not self._loaded_tasks:
-            ttk.Label(self.inner_task_frame, text="No tasks found.", style="TaskTitle.TLabel").pack(pady=5)
+            ttk.Label(self.general_task_frame, text="No tasks found.", style="TaskTitle.TLabel").pack(pady=5)
             # Update scrollable region after adding content
-            self.inner_task_frame.update_idletasks()
+            self.general_task_frame.update_idletasks()
             self.task_canvas.config(scrollregion=self.task_canvas.bbox("all"))
             return
         
@@ -306,7 +346,7 @@ class TaskManagementView(BaseView):
             
             # Create a frame for each task to group its title and details
             task_item_frame = tk.Frame(  # <-- CHANGED THIS LINE!
-                self.inner_task_frame,
+                self.general_task_frame,
                 background="lightgray",  # Make the background of THIS box light gray
                 borderwidth=1,           # Give THIS box a border 1 pixel thick
                 relief="solid"           # Make the border of THIS box a clear, solid line
@@ -326,7 +366,7 @@ class TaskManagementView(BaseView):
                  f"| Prioridad: {task.priority} "
                  f"| Terminar antes de: {task.formatted_completion_date if task.completion_date else 'N/A'} "
                  f"| Estado: {'Pendiente' if task.is_active else 'Completado'}"
-                 f"| Creado por: {self.current_username}")
+                 f"| Creado por: {task.created_by}")
             ttk.Label(task_item_frame,
                       text=details_text,
                       style="TaskDetail.TLabel",
@@ -336,20 +376,20 @@ class TaskManagementView(BaseView):
 
             # Add a separator if it's not the last task
             if i < len(self._loaded_tasks) - 1:
-                ttk.Separator(self.inner_task_frame, orient="horizontal").pack(fill="x", pady=5)
+                ttk.Separator(self.general_task_frame, orient="horizontal").pack(fill="x", pady=5)
 
         # IMPORTANT: Update the scrollable region of the canvas after adding all items
-        self.inner_task_frame.update_idletasks() # Ensure widgets are rendered to get correct size
+        self.general_task_frame.update_idletasks() # Ensure widgets are rendered to get correct size
         self.task_canvas.config(scrollregion=self.task_canvas.bbox("all"))
 
     # --- Canvas & Scrollbar Helper Methods ---
     def _on_canvas_configure(self, event):
         # Update the width of the inner frame to match the canvas's width
         # This makes sure the content frame fills the canvas horizontally
-        self.task_canvas.itemconfig(self.task_canvas.create_window((0, 0), window=self.inner_task_frame, anchor="nw"),
+        self.task_canvas.itemconfig(self.task_canvas.create_window((0, 0), window=self.general_task_frame, anchor="nw"),
                                     width=event.width)
         # Also update the scroll region
-        self.inner_task_frame.update_idletasks()
+        self.general_task_frame.update_idletasks()
         self.task_canvas.config(scrollregion=self.task_canvas.bbox("all"))
 
     def _on_mousewheel(self, event):

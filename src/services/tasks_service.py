@@ -25,10 +25,10 @@ class TasksService:
         return tasks_dict
         
     def get_tasks(self):
-        return self.tasks_repository.get_users()
+        return self.tasks_repository.get_tasks()
         
     def add_task(self, task):
-        return self.tasks_repository.add_user(task)
+        return self.tasks_repository.add_task(task)
     
     def delete_task(self, task):
         return self.tasks_repository.delete_user(task)

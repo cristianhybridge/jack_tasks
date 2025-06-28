@@ -7,6 +7,11 @@ class UsersService:
 
     def get_users(self):
         return self.users_repository.get_users()
+    
+    def get_username_by_id(self, id: int):
+        return self.users_repository.get_username_by_id(id)
+
+
 
     def add_user(self, task):
         return self.users_repository.add_user(task)
