@@ -207,7 +207,7 @@ class TaskManagementView(BaseView):
     
     # ------------------------------- Data loading and display -------------------------------
         
-        self.task_list_frame.pack(pady=10, padx=10, fill="x", expand=True)
+        self.task_list_frame.pack(pady=10, padx=5, fill="x", expand=True)
     
         # Canvas: task_canvas
         self.task_canvas.pack(side="left", fill="x", expand=True)
@@ -233,10 +233,11 @@ class TaskManagementView(BaseView):
         self.task_completion_date_entry.pack(side="left", padx=5)
     
         self.task_completion_hour_entry.pack(side="left")
+        
+        self.time_separator_label.pack(side="left")
     
         self.task_completion_minute_entry.pack(side="left")
     
-        self.time_separator_label.pack(side="left")
     
     # --- END TIME PICKER ---
     
@@ -256,7 +257,7 @@ class TaskManagementView(BaseView):
         self.priority_button_normal.pack(side="left", padx=10)
         
     # --- END RADIO BUTTONS ---
-        self.add_button.pack(side="bottom",padx=10)
+        self.add_button.pack(side="bottom",padx=5)
     
 
     def _add_new_task(self):
