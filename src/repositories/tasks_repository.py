@@ -8,7 +8,13 @@ class TasksRepository:
 
     def get_tasks(self) -> List[TaskEntity]:
         return list(self._tasks) # Retorna una copia para evitar modificaciones directas
-
+    
+    def get_completed_tasks(self) -> List[TaskEntity]:
+        return list(filter(lambda task: not task.is_active, self._tasks))
+    
+    def get_pending_tasks(self) -> List[TaskEntity]:
+        return list(filter(lambda task: task.is_active, self._tasks))
+    
     def add_task(self, task: TaskEntity) -> TaskEntity:
         self._tasks.append(task)
         return task

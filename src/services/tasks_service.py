@@ -24,6 +24,12 @@ class TasksService:
         
         return tasks_dict
         
+    def get_completed_tasks(self) -> List:
+        return self.tasks_repository.get_completed_tasks()
+    
+    def get_pending_tasks(self) -> List:
+        return self.tasks_repository.get_pending_tasks()
+    
     def get_tasks(self):
         return self.tasks_repository.get_tasks()
         
