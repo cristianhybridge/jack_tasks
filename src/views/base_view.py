@@ -1,7 +1,7 @@
 import tkinter as tk
 from abc import ABC, abstractmethod
 from tkinter import ttk
-from src.app_styles import configure_styles
+from app_styles import configure_styles
 
 class BaseView(ABC, tk.Frame):
     """

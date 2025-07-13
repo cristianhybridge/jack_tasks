@@ -1,4 +1,4 @@
-﻿from src.models.tasks_entity import TaskEntity
+﻿from models.tasks_entity import TaskEntity
 from typing import List, Dict, Optional
 import datetime
 
@@ -11,11 +11,11 @@ class TasksRepository:
     
     def get_completed_tasks(self) -> List[TaskEntity]:
         return list(filter(lambda task: 
-                           task.required_date > datetime.datetime.now() or task.marked_as_completed
+                           task.required_date < datetime.datetime.now() or task.marked_as_completed
                            ,self._tasks))
 
     def get_pending_tasks(self) -> List[TaskEntity]:
-        return list(filter(lambda task: task.marked_as_completed == False and task.required_date < datetime.datetime.now(),
+        return list(filter(lambda task: task.marked_as_completed == False and task.required_date > datetime.datetime.now(),
                            self._tasks))
     
     def add_task(self, task: TaskEntity) -> TaskEntity:

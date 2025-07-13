@@ -1,13 +1,11 @@
 import datetime
-from distutils.fancy_getopt import wrap_text
-
 from tkcalendar import DateEntry
-from src.services.tasks_service import TasksService
-from src.views.base_view import BaseView
+from services.tasks_service import TasksService
+from views.base_view import BaseView
 import tkinter as tk
 from tkinter import ttk
 
-from src.models.tasks_entity import TaskEntity
+from models.tasks_entity import TaskEntity
 
 class TaskManagementView(BaseView):
     def __init__(self, master, show_view_callback, tasks_service: TasksService):
@@ -143,7 +141,7 @@ class TaskManagementView(BaseView):
 
 
         # Label: "Fecha límite:"
-        self.due_date_label = ttk.Label(self.left_frame, text="Fecha límite:", style="secondary_label.TLabel")
+        self.due_date_label = ttk.Label(self.left_frame, text="Fecha de cumplimiento:", style="secondary_label.TLabel")
 
         # Label: Separator for time
         self.time_separator_label = ttk.Label(self.date_time_frame, text=":", style="secondary_label.TLabel")
