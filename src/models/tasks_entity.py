@@ -8,6 +8,7 @@ class TaskEntity:
     # Campos sin valor por defecto
     title: str
     priority: str
+    marked_as_completed: bool = False
     
     # Campos con valor por defecto
     
@@ -17,6 +18,7 @@ class TaskEntity:
     
     # No permitir que se inicialice automaticamente
     task_id: int = field(init=False, hash=False)
+    
     
     required_date: datetime | None = None
     

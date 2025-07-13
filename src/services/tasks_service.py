@@ -18,3 +18,6 @@ class TasksService:
     
     def delete_task(self, task_id: int):
         return self.tasks_repository.delete_task(task_id)
+    
+    def mark_as_completed(self, task_id: int):
+        return self.tasks_repository.mark_as_completed(task_id)

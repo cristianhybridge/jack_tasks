@@ -318,7 +318,8 @@ class TaskManagementView(BaseView):
             print(f"Error adding task: {e}")
 
     def _load_all_tasks(self):
-        print("DEBUG: Loading all tasks...")
+        # all_tasks = self.tasks_service.get_tasks()
+        # print(f"DEBUG: Loading all tasks...:{all_tasks}")
 
         self._load_completed_tasks()
         self._load_pending_tasks()
@@ -378,7 +379,7 @@ class TaskManagementView(BaseView):
                 task_delete_label.task_id = task.task_id
                 
                 # Asociamos el frame al evento de click con el mouse
-                task_delete_label.bind("<Button-1>", self._on_click_task_event)    
+                task_delete_label.bind("<Button-1>", self._on_click_task_delete)    
                 
                 ttk.Label(task_item_frame,
                           text=f"{task.title}",
@@ -388,8 +389,7 @@ class TaskManagementView(BaseView):
                         .pack(fill="x")
     
                 details_text = \
-                    (f" Prioridad: {task.priority} "
-                     f"| Fecha límite: {task.formatted_completion_date if task.required_date else 'N/A'}")
+                    f" Prioridad: {task.priority}"
                 ttk.Label(task_item_frame,
                           text=details_text,
                           style="TaskDetail.TLabel",
@@ -402,7 +402,6 @@ class TaskManagementView(BaseView):
         # Always update after all completed widgets are potentially added
         self.general_completed_task_frame.update_idletasks()
         self._update_scroll_region(self.task_completed_canvas, self.general_completed_task_frame, self.completed_canvas_frame_id)
-    
     
         # --------- Pending tasks
         if not self._loaded_tasks_pending:
@@ -418,17 +417,29 @@ class TaskManagementView(BaseView):
                     relief="solid"
                 )
                 task_item_frame.pack(fill="x", pady=2, padx=5, side="top", ipadx=5, ipady=5)
+                
+                task_buttons_frame = tk.Frame(task_item_frame)
+                task_buttons_frame.pack(side="top")
 
-                task_delete_label = ttk.Label(task_item_frame, text="Eliminar", style="basic_text.TLabel",
+                # Evento: ELIMINAR
+                task_delete_label = ttk.Label(task_buttons_frame, text="Eliminar", style="basic_text.TLabel",
                                               background="red", foreground="white", cursor="hand2")
-                task_delete_label.pack(side="top", anchor="se")
-
+                task_delete_label.pack(side="right")
                 # Obtenemos el id del task en el label
                 task_delete_label.task_id = task.task_id
-
                 # Asociamos el frame al evento de click con el mouse
-                task_delete_label.bind("<Button-1>", self._on_click_task_event)
-
+                task_delete_label.bind("<Button-1>", self._on_click_task_delete)
+                
+                # Evento: COMPLETAR
+                task_complete_label = ttk.Label(task_buttons_frame, text="Completar", style="basic_text.TLabel",
+                                              background="darkgreen", foreground="white", cursor="hand2")
+                task_complete_label.pack(side="left")
+                # Obtenemos el id del task en el label
+                task_complete_label.task_id = task.task_id
+                # Asociamos el frame al evento de click con el mouse
+                task_complete_label.bind("<Button-1>", self._on_click_task_mark_as_completed)
+                
+                
                 ttk.Label(task_item_frame,
                           text=f"{task.title}",
                           style="TaskTitle.TLabel",
@@ -489,10 +500,10 @@ class TaskManagementView(BaseView):
                 widget.yview_scroll(-1 * (event.delta // 120), "units")
 
 
-    def _on_click_task_event(self, event):
+    def _on_click_task_delete(self, event):
         widget = event.widget
         
-        print("DEBUG: Clicked task.")
+        print("DEBUG: Clicked task for delete.")
 
         # Subir hasta encontrar el frame que tiene el atributo `task_id`
         while widget and not hasattr(widget, "task_id"):
@@ -501,7 +512,24 @@ class TaskManagementView(BaseView):
         if widget and hasattr(widget, "task_id"):
             task_id = widget.task_id
 
-            print(f"DEBUG: Clicked task: {task_id}")
+            print(f"DEBUG: Deleting task: {task_id}")
             
             self.tasks_service.delete_task(task_id)
+            self._load_all_tasks()
+
+    def _on_click_task_mark_as_completed(self, event):
+        widget = event.widget
+
+        print("DEBUG: Clicked task for complete")
+
+        # Subir hasta encontrar el frame que tiene el atributo `task_id`
+        while widget and not hasattr(widget, "task_id"):
+            widget = widget.master
+
+        if widget and hasattr(widget, "task_id"):
+            task_id = widget.task_id
+
+            print(f"DEBUG: Completing task: {task_id}")
+
+            self.tasks_service.mark_as_completed(task_id)
             self._load_all_tasks()
