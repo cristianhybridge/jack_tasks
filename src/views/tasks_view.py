@@ -44,7 +44,7 @@ class TaskManagementView(BaseView):
 
     def _create_widgets(self):
 
-        # ------------------------------- FRAMES and CANVAS -------------------------------
+        # ------------------------------- FRAMES, CANVAS, CONTAINERS -------------------------------
         # Main fraime, central frame
         self.main_frame = tk.Frame(self, bg="#e0ffe0")
 
@@ -56,10 +56,10 @@ class TaskManagementView(BaseView):
         self.left_top_center_frame = tk.Frame(self.left_frame, bg="#e0ffe0")
 
         # Frame: task_list_frame (Container for pending tasks canvas and scrollbar)
-        self.task_pending_list_frame = ttk.Frame(self.left_frame)
+        self.task_pending_container_frame = ttk.Frame(self.left_frame)
 
         # Canvas: task_pending_canvas
-        self.task_pending_canvas = tk.Canvas(self.task_pending_list_frame, bg="#e0ffe0", bd=0, highlightthickness=0)
+        self.task_pending_canvas = tk.Canvas(self.task_pending_container_frame, bg="#e0ffe0", bd=0, highlightthickness=0)
 
         # Bindings for pending canvas - using generalized _on_canvas_configure
         self.task_pending_canvas.bind("<Configure>", lambda event: self._on_canvas_configure(event, self.task_pending_canvas, self.general_pending_task_frame, self.pending_canvas_frame_id))
@@ -175,7 +175,7 @@ class TaskManagementView(BaseView):
 
 
         # ------------------------------- SCROLLBAR (PENDING) -------------------------------
-        self.task_pending_scrollbar = ttk.Scrollbar(self.task_pending_list_frame,
+        self.task_pending_scrollbar = ttk.Scrollbar(self.task_pending_container_frame,
                                                     orient="vertical",
                                                     command=self.task_pending_canvas.yview)
 
@@ -185,17 +185,11 @@ class TaskManagementView(BaseView):
         self.right_frame = tk.Frame(self, bg="#e0ffe0")
         self.right_top_center_frame = tk.Frame(self.right_frame, bg="#e0ffe0")
 
-        # Button: "Ajustes"
-        self.settings_button = ttk.Button(self.right_frame,
-                                          text="Ajustes",
-                                          style="secondary_button.TButton",
-                                          command=lambda: self.navigate_to("options"))
-
         # Frame para los tasks completados (Container for completed tasks canvas and scrollbar)
-        self.task_completed_list_frame = ttk.Frame(self.right_frame)
+        self.task_completed_container_frame = ttk.Frame(self.right_frame)
 
         # Canvas: task_completed_canvas
-        self.task_completed_canvas = tk.Canvas(self.task_completed_list_frame, bg="#e0ffe0", bd=0, highlightthickness=0)
+        self.task_completed_canvas = tk.Canvas(self.task_completed_container_frame, bg="#e0ffe0", bd=0, highlightthickness=0)
 
         # Bindings for completed canvas - using generalized _on_canvas_configure
         self.task_completed_canvas.bind("<Configure>", lambda event: self._on_canvas_configure(event, self.task_completed_canvas, self.general_completed_task_frame, self.completed_canvas_frame_id))
@@ -218,7 +212,7 @@ class TaskManagementView(BaseView):
         # Removed initial _load_all_tasks() call here (handled by self.after in __init__)
 
         # ------------------------------- SCROLLBAR (COMPLETED) -------------------------------
-        self.task_completed_scrollbar = ttk.Scrollbar(self.task_completed_list_frame,
+        self.task_completed_scrollbar = ttk.Scrollbar(self.task_completed_container_frame,
                                                       orient="vertical",
                                                       command=self.task_completed_canvas.yview)
 
@@ -227,85 +221,59 @@ class TaskManagementView(BaseView):
         # ------------------------------- Layout -------------------------------
         # ------------------------------- ------ -------------------------------
         # Packing frames
-        self.main_frame.pack(fill="both")
-        self.right_frame.pack(side="right", fill="both", padx=10)
-        self.right_top_center_frame.pack(side="top", fill="x", pady=5)
-        self.left_frame.pack(side="left", fill="both", padx=10)
+        self.main_frame.pack()
+        self.left_frame.pack(side="left", fill="both", expand=True, padx=5) 
+        self.right_frame.pack(side="right", fill="both", expand=True, padx=5)
         self.left_top_center_frame.pack(side="top", pady=5)
-
+        self.right_top_center_frame.pack(side="top", pady=5)
+    
         # ------------------------------- CENTERED UI -------------------------------
-
         self.admin_tasks_label.pack(side="bottom", pady=(20,0))
-
-        # ------------------------------- RIGHT FRAME -------------------------------
-
-        self.pending_tasks_title.pack()
-        
-        # Pack the completed tasks list frame, canvas, and scrollbar
-        self.task_completed_list_frame.pack(pady=10, padx=5, fill="both", expand=True)
-        self.task_completed_canvas.pack(side="left", fill="both", expand=True) # Changed fill to both
-        self.task_completed_scrollbar.pack(side="right", fill="y")
-        self.task_completed_canvas.configure(yscrollcommand=self.task_completed_scrollbar.set)
-
-        # ------------------------------- LEFT FRAME -------------------------------
-
-        self.completed_tasks_title.pack()
-
-        # ------------------------------- Data loading and display -------------------------------
-
-        self.task_pending_list_frame.pack(pady=10, padx=5, fill="both", expand=True) # Changed fill to both
-
-        # Canvas: task_pending_canvas
-        self.task_pending_canvas.pack(side="left", fill="both", expand=True) # Changed fill to both
-
-        # Scrollbar: task_pending_scrollbar
+    
+        # ------------------------------- LEFT FRAME (PENDING TASKS) -------------------------------
+        self.pending_tasks_title.pack() 
+    
+        # Pack the pending tasks list frame, canvas, and scrollbar
+        self.task_pending_container_frame.pack(pady=10, padx=5, fill="both", expand=True)
+        self.task_pending_canvas.pack(side="left", fill="both", expand=True)
         self.task_pending_scrollbar.pack(side="right", fill="y")
         self.task_pending_canvas.configure(yscrollcommand=self.task_pending_scrollbar.set)
-
+    
+        # ------------------------------- RIGHT FRAME (COMPLETED TASKS) -------------------------------
+        self.completed_tasks_title.pack() 
+    
+        # Pack the completed tasks list frame, canvas, and scrollbar
+        self.task_completed_container_frame.pack(pady=10, padx=5, fill="both", expand=True)
+        self.task_completed_canvas.pack(side="left", fill="both", expand=True)
+        self.task_completed_scrollbar.pack(side="right", fill="y")
+        self.task_completed_canvas.configure(yscrollcommand=self.task_completed_scrollbar.set)
+    
+        # ------------------------------- INPUT CONTROLS (LEFT FRAME) -------------------------------
         # Packing data input frames
-        self.data_input_frame_left.pack(side="left", pady=10, padx=10)
-        self.data_input_frame_right.pack(side="right", pady=10, padx=10)
-
+        self.data_input_frame_left.pack(side="left", pady=10)
+        self.data_input_frame_right.pack(side="right", pady=10)
+    
         self.task_description_label.pack(pady=(10, 0))
-
-        self.task_title_entry.pack(pady=10, fill="x", expand=True)
-
+        self.task_title_entry.pack(pady=10)
+    
         # --- START TIME PICKER ---
-
         self.due_date_label.pack(pady=(10, 0))
-
         self.date_time_frame.pack(side="top", pady=5)
-
-        self.task_completion_date_entry.pack(side="left", padx=5)
-
-        self.task_completion_hour_entry.pack(side="left")
-
-        self.time_separator_label.pack(side="left")
-
-        self.task_completion_minute_entry.pack(side="left")
-
-
-        # --- END TIME PICKER ---
-
-        # --- START RADIO BUTTONS ---
-
-        # Frame: priority_frame (to hold radio buttons)
         self.priority_frame.pack(side="bottom", pady=5)
-
+        self.task_completion_date_entry.pack(side="left", padx=5)
+        self.task_completion_hour_entry.pack(side="left")
+        self.time_separator_label.pack(side="left")
+        self.task_completion_minute_entry.pack(side="left")
+    
+        # --- START RADIO BUTTONS ---
         self.priority_label.pack(side="top", pady=5)
-
-        self.task_priority_entry.set("Normal") # Default selection
-
+        self.task_priority_entry.set("Normal")  # Default selection
         self.priority_button_urgente.pack(side="left", padx=10)
-
         self.priority_button_importante.pack(side="left", padx=10)
-
         self.priority_button_normal.pack(side="left", padx=10)
-
-        # --- END RADIO BUTTONS ---
-        self.add_button.pack(side="bottom",padx=5)
-
-        # Removed _load_all_tasks() call here (handled by self.after in __init__)
+    
+        # --- ADD BUTTON ---
+        self.add_button.pack(side="bottom", padx=5)
 
     def _add_new_task(self):
 
