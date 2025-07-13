@@ -1,33 +1,22 @@
 import tkinter as tk
+from abc import ABC, abstractmethod
 from tkinter import ttk
 from src.app_styles import configure_styles
 
-class BaseView(tk.Frame):
+class BaseView(ABC, tk.Frame):
     """
-    Clase base para todas las vistas (pantallas) de la aplicación.
-    Provee funcionalidad común como el acceso al controlador de vistas.
+    Clase base para todas las vistas de la aplicacion
+    Sin embargo, como estoy haciendo una app minimalista, solo estoy haciendo una herencia abstracta
+    a traves de una interfaz (ABC)
     """
     def __init__(self, master, show_view_callback):
         super().__init__(master)
         self.master = master # La ventana principal (App)
         self.show_view_callback = show_view_callback # La función para cambiar de vista
 
-        self._setup_layout()
-
+    @abstractmethod
     def _create_widgets(self):
-        """
-        Método a sobrescribir por las clases hijas para crear sus widgets.
-        """
-        pass # Implementación vacía, cada vista la llenará
-
-    def _setup_layout(self):
-        """
-        Método a sobrescribir por las clases hijas para configurar su layout.
-        """
-        pass # Implementación vacía, cada vista la llenará
-
-    def navigate_to(self, view_name: str):
-        """
-        Método de conveniencia para navegar a otra vista.
-        """
-        self.show_view_callback(view_name)
+        pass
+    @abstractmethod
+    def _build_ui(self):
+        pass

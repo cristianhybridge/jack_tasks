@@ -1,4 +1,6 @@
 import datetime
+from distutils.fancy_getopt import wrap_text
+
 from tkcalendar import DateEntry
 from src.services.tasks_service import TasksService
 from src.views.base_view import BaseView
@@ -10,13 +12,15 @@ from src.models.tasks_entity import TaskEntity
 class TaskManagementView(BaseView):
     def __init__(self, master, show_view_callback, tasks_service: TasksService):
         super().__init__(master, show_view_callback)
-        self.config(bg="#e0ffe0")
+        self.config(bg="#AEC0CD")
 
         self.tasks_service = tasks_service
 
         # Variables for entries
         self.task_title_entry = None
-        self.task_priority_entry = tk.StringVar(self) # Variable for storing radiogroup value
+
+        # Variable for storing radiogroup value
+        self.task_priority_entry = tk.StringVar(self) 
 
         # Variables for calendar
         self.task_completion_date_var = tk.StringVar(self)
@@ -46,20 +50,20 @@ class TaskManagementView(BaseView):
 
         # ------------------------------- FRAMES, CANVAS, CONTAINERS -------------------------------
         # Main fraime, central frame
-        self.main_frame = tk.Frame(self, bg="#e0ffe0")
+        self.main_frame = tk.Frame(self, bg="#AEC0CD")
 
         # ----------------------------------- LEFT SIDE (PENDING TASKS) -------------------------------
         # Left frame: To be completed TASKS
-        self.left_frame = tk.Frame(self, bg="#e0ffe0")
+        self.left_frame = tk.Frame(self, bg="#AEC0CD")
 
         # Introduce a new frame for the very top row of the left_frame
-        self.left_top_center_frame = tk.Frame(self.left_frame, bg="#e0ffe0")
+        self.left_top_center_frame = tk.Frame(self.left_frame, bg="#AEC0CD")
 
         # Frame: task_list_frame (Container for pending tasks canvas and scrollbar)
         self.task_pending_container_frame = ttk.Frame(self.left_frame)
 
         # Canvas: task_pending_canvas
-        self.task_pending_canvas = tk.Canvas(self.task_pending_container_frame, bg="#e0ffe0", bd=0, highlightthickness=0)
+        self.task_pending_canvas = tk.Canvas(self.task_pending_container_frame, bg="#AEC0CD", bd=0, highlightthickness=0)
 
         # Bindings for pending canvas - using generalized _on_canvas_configure
         self.task_pending_canvas.bind("<Configure>", lambda event: self._on_canvas_configure(event, self.task_pending_canvas, self.general_pending_task_frame, self.pending_canvas_frame_id))
@@ -76,16 +80,16 @@ class TaskManagementView(BaseView):
 
         # Frame: data_input_frame_left
         self.data_input_frame_left = ttk.Frame(self.left_frame, style="taskview_frame.TFrame")
-        # Frame: data_input_frame_right
-        self.data_input_frame_right = ttk.Frame(self.left_frame, style="taskview_frame.TFrame")
+        # Frame: left_frame
+        # self.left_frame = ttk.Frame(self.left_frame, style="taskview_frame.TFrame")
 
-        self.priority_frame = ttk.Frame(self.data_input_frame_right)
+        self.priority_frame = ttk.Frame(self.left_frame)
 
         # Frame: date_time_frame
-        self.date_time_frame = ttk.Frame(self.data_input_frame_right)
+        self.date_time_frame = ttk.Frame(self.left_frame)
         # ------------------------------- ENTRIES -------------------------------
         # Textbox: task_title_entry
-        self.task_title_entry = tk.Text(self.data_input_frame_left,
+        self.task_title_entry = tk.Text(self.left_frame,
                                         width=35,
                                         height=5,
                                         wrap="word",
@@ -103,7 +107,7 @@ class TaskManagementView(BaseView):
                                                     font=('Helvetica', 10),
                                                     background='darkblue',
                                                     foreground='white',
-                                                    bordercolor='gray',
+                                                    bordercolor='lightblue',
                                                     headersbackground='darkblue',
                                                     headersforeground='white')
 
@@ -132,14 +136,14 @@ class TaskManagementView(BaseView):
         # Label: TITLE: Pendientes
         self.pending_tasks_title = ttk.Label(self.left_top_center_frame,
                                              text="Pendientes",
-                                             style="main_title.TLabel")
+                                             style="main_title_blue.TLabel")
         
         # Label: "Describe tu tarea:"
-        self.task_description_label = ttk.Label(self.data_input_frame_left, text="Describe tu tarea:", style="secondary_label.TLabel")
+        self.task_description_label = ttk.Label(self.left_frame, text="Describe tu tarea:", style="secondary_label.TLabel")
 
 
         # Label: "Fecha límite:"
-        self.due_date_label = ttk.Label(self.data_input_frame_right, text="Fecha límite:", style="secondary_label.TLabel")
+        self.due_date_label = ttk.Label(self.left_frame, text="Fecha límite:", style="secondary_label.TLabel")
 
         # Label: Separator for time
         self.time_separator_label = ttk.Label(self.date_time_frame, text=":", style="secondary_label.TLabel")
@@ -182,14 +186,14 @@ class TaskManagementView(BaseView):
 
         # ----------------------------------- RIGHT SIDE (COMPLETED TASKS) -------------------------------
         # Right frame: Completed TASKS
-        self.right_frame = tk.Frame(self, bg="#e0ffe0")
-        self.right_top_center_frame = tk.Frame(self.right_frame, bg="#e0ffe0")
+        self.right_frame = tk.Frame(self, bg="#AEC0CD")
+        self.right_top_center_frame = tk.Frame(self.right_frame, bg="#AEC0CD")
 
         # Frame para los tasks completados (Container for completed tasks canvas and scrollbar)
         self.task_completed_container_frame = ttk.Frame(self.right_frame)
 
         # Canvas: task_completed_canvas
-        self.task_completed_canvas = tk.Canvas(self.task_completed_container_frame, bg="#e0ffe0", bd=0, highlightthickness=0)
+        self.task_completed_canvas = tk.Canvas(self.task_completed_container_frame, bg="#AEC0CD", bd=0, highlightthickness=0)
 
         # Bindings for completed canvas - using generalized _on_canvas_configure
         self.task_completed_canvas.bind("<Configure>", lambda event: self._on_canvas_configure(event, self.task_completed_canvas, self.general_completed_task_frame, self.completed_canvas_frame_id))
@@ -201,15 +205,13 @@ class TaskManagementView(BaseView):
         # Label: TITLE: Completados
         self.completed_tasks_title = ttk.Label(self.right_top_center_frame,
                                                text="Completados",
-                                               style="main_title.TLabel")
+                                               style="main_title_green.TLabel")
 
         # IMPORTANT: Use task_completed_canvas.winfo_width() for width here!
         self.completed_canvas_frame_id = self.task_completed_canvas.create_window((0,0), window=self.general_completed_task_frame, anchor="nw", width=self.task_completed_canvas.winfo_width())
 
         # Bind the inner frame to generalized _on_frame_configure (NOT _on_canvas_configure)
         self.general_completed_task_frame.bind("<Configure>", lambda event: self._on_frame_configure(event, self.task_completed_canvas, self.general_completed_task_frame, self.completed_canvas_frame_id))
-
-        # Removed initial _load_all_tasks() call here (handled by self.after in __init__)
 
         # ------------------------------- SCROLLBAR (COMPLETED) -------------------------------
         self.task_completed_scrollbar = ttk.Scrollbar(self.task_completed_container_frame,
@@ -249,17 +251,13 @@ class TaskManagementView(BaseView):
         self.task_completed_canvas.configure(yscrollcommand=self.task_completed_scrollbar.set)
     
         # ------------------------------- INPUT CONTROLS (LEFT FRAME) -------------------------------
-        # Packing data input frames
-        self.data_input_frame_left.pack(side="left", pady=10)
-        self.data_input_frame_right.pack(side="right", pady=10)
-    
         self.task_description_label.pack(pady=(10, 0))
         self.task_title_entry.pack(pady=10)
     
         # --- START TIME PICKER ---
         self.due_date_label.pack(pady=(10, 0))
         self.date_time_frame.pack(side="top", pady=5)
-        self.priority_frame.pack(side="bottom", pady=5)
+        self.priority_frame.pack(side="bottom", pady=20)
         self.task_completion_date_entry.pack(side="left", padx=5)
         self.task_completion_hour_entry.pack(side="left")
         self.time_separator_label.pack(side="left")
@@ -273,7 +271,7 @@ class TaskManagementView(BaseView):
         self.priority_button_normal.pack(side="left", padx=10)
     
         # --- ADD BUTTON ---
-        self.add_button.pack(side="bottom", padx=5)
+        self.add_button.pack(padx=5)
 
     def _add_new_task(self):
 
@@ -313,7 +311,7 @@ class TaskManagementView(BaseView):
             print(f"Task added: {query_task}")
 
             # Recargar para mostrar las tareas recien agregadas
-            self._load_all_tasks() # Call the unified loader
+            self._load_all_tasks()
             
 
         except Exception as e:
@@ -332,7 +330,8 @@ class TaskManagementView(BaseView):
             print(f"COMPLETED: Se encontraron los siguientes datos: {self._loaded_tasks_completed}")
         else:
             print("COMPLETED: No se encontraron datos.")
-        # Always call display to ensure UI is cleared or updated correctly
+            
+        # Cargar el display para actualizar
         self._display_all_tasks()
 
     def _load_pending_tasks(self):
@@ -342,7 +341,8 @@ class TaskManagementView(BaseView):
             print(f"PENDING: Se encontraron los siguientes datos: {self._loaded_tasks_pending}")
         else:
             print("PENDING: No se encontraron datos.")
-        # Always call display to ensure UI is cleared or updated correctly
+            
+        # Cargar el display para actualizar
         self._display_all_tasks()
 
 
@@ -364,7 +364,7 @@ class TaskManagementView(BaseView):
             for i, task in enumerate(self._loaded_tasks_completed):
                 task_item_frame = tk.Frame(
                     self.general_completed_task_frame, # Correct parent
-                    background="lightgray",
+                    background="darkgreen",
                     borderwidth=1,
                     relief="solid"
                 )
@@ -374,8 +374,8 @@ class TaskManagementView(BaseView):
                           text=f"{task.title}",
                           style="TaskTitle.TLabel",
                           anchor="w",
-                          background="lightgray") \
-                    .pack(fill="x")
+                          wraplength=400) \
+                        .pack(fill="x")
     
                 details_text = \
                     (f" Prioridad: {task.priority} "
@@ -383,8 +383,7 @@ class TaskManagementView(BaseView):
                 ttk.Label(task_item_frame,
                           text=details_text,
                           style="TaskDetail.TLabel",
-                          anchor="w",
-                          background="lightgray") \
+                          anchor="w") \
                     .pack(fill="x")
     
                 if i < len(self._loaded_tasks_completed) - 1:
@@ -404,7 +403,7 @@ class TaskManagementView(BaseView):
             for i, task in enumerate(self._loaded_tasks_pending):
                 task_item_frame = tk.Frame(
                     self.general_pending_task_frame,
-                    background="lightgray",
+                    background="darkblue",
                     borderwidth=1,
                     relief="solid"
                 )
@@ -414,7 +413,7 @@ class TaskManagementView(BaseView):
                           text=f"{task.title}",
                           style="TaskTitle.TLabel",
                           anchor="w",
-                          background="lightgray") \
+                          wraplength=400) \
                     .pack(fill="x")
     
                 details_text = \
@@ -423,8 +422,7 @@ class TaskManagementView(BaseView):
                 ttk.Label(task_item_frame,
                           text=details_text,
                           style="TaskDetail.TLabel",
-                          anchor="w",
-                          background="lightgray") \
+                          anchor="w") \
                     .pack(fill="x")
     
                 if i < len(self._loaded_tasks_pending) - 1:
@@ -435,7 +433,6 @@ class TaskManagementView(BaseView):
         self._update_scroll_region(self.task_pending_canvas, self.general_pending_task_frame, self.pending_canvas_frame_id)
 
     # --- Canvas & Scrollbar Helper Methods ---
-    # Generalized _on_canvas_configure to accept canvas, inner_frame, and frame_id
     def _on_canvas_configure(self, event, canvas_obj, inner_frame, frame_id):
         """Called when a canvas changes size."""
         if frame_id is not None:
@@ -447,7 +444,7 @@ class TaskManagementView(BaseView):
         """Called when an inner frame (inside a canvas) changes size."""
         self._update_scroll_region(canvas_obj, inner_frame, frame_id)
 
-    # Generalized _update_scroll_region to accept canvas, inner_frame, and frame_id
+    # Generalized _update_scroll_region, accept canvas, inner_frame, and frame_id
     @staticmethod
     def _update_scroll_region(canvas_obj, inner_frame, frame_id):
         """Updates the scroll region of the given canvas based on its inner frame's bounding box."""
