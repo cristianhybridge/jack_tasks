@@ -16,5 +16,5 @@ class TasksService:
     def add_task(self, task):
         return self.tasks_repository.add_task(task)
     
-    def delete_task(self, task):
-        return self.tasks_repository.delete_user(task)
+    def delete_task(self, task_id: int):
+        return self.tasks_repository.delete_task(task_id)

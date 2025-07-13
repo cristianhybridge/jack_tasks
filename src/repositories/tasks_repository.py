@@ -10,15 +10,20 @@ class TasksRepository:
         return list(self._tasks)
     
     def get_completed_tasks(self) -> List[TaskEntity]:
-        return list(filter(lambda task: task.completion_date < datetime.datetime.now(),
+        return list(filter(lambda task: task.required_date < datetime.datetime.now(),
                            self._tasks))
     
     def get_pending_tasks(self) -> List[TaskEntity]:
-        return list(filter(lambda task: task.completion_date >= datetime.datetime.now(), self._tasks))
+        return list(filter(lambda task: task.required_date >= datetime.datetime.now(), self._tasks))
     
     def add_task(self, task: TaskEntity) -> TaskEntity:
         self._tasks.append(task)
         return task
+
+    def delete_task(self, task_id: int) -> bool:
+        initial_len = len(self._tasks)
+        self._tasks = [t for t in self._tasks if t.task_id != task_id]
+        return len(self._tasks) < initial_len # Retorna True si se eliminó algo
 
     def update_task(self, task_id: str, entity_to_update: Dict) -> Optional[TaskEntity]:
         for task in self._tasks:
@@ -28,7 +33,7 @@ class TasksRepository:
                 if "priority" in entity_to_update:
                     task.priority = entity_to_update["priority"]
                 if "completion_date" in entity_to_update:
-                    task.completion_date = entity_to_update["completion_date"]
+                    task.required_date = entity_to_update["completion_date"]
                 if "is_active" in entity_to_update:
                     task.is_active = entity_to_update["is_active"]
                 return task

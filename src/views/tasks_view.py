@@ -302,7 +302,7 @@ class TaskManagementView(BaseView):
         try:
             new_task = TaskEntity(title=var_task_entity_title,
                                   priority=var_task_entity_priority,
-                                  completion_date=var_complete_datetime)
+                                  required_date=var_complete_datetime)
 
             query_task = self.tasks_service.add_task(new_task)
 
@@ -369,7 +369,17 @@ class TaskManagementView(BaseView):
                     relief="solid"
                 )
                 task_item_frame.pack(fill="x", pady=2, padx=5, side="top", ipadx=5, ipady=5)
-    
+
+                task_delete_label = ttk.Label(task_item_frame, text="Eliminar", style="basic_text.TLabel", 
+                                              background="red", foreground="white", cursor="hand2")
+                task_delete_label.pack(side="top", anchor="se")
+                
+                # Obtenemos el id del task en el label
+                task_delete_label.task_id = task.task_id
+                
+                # Asociamos el frame al evento de click con el mouse
+                task_delete_label.bind("<Button-1>", self._on_click_task_event)    
+                
                 ttk.Label(task_item_frame,
                           text=f"{task.title}",
                           style="TaskTitle.TLabel",
@@ -379,7 +389,7 @@ class TaskManagementView(BaseView):
     
                 details_text = \
                     (f" Prioridad: {task.priority} "
-                     f"| Fecha límite: {task.formatted_completion_date if task.completion_date else 'N/A'}")
+                     f"| Fecha límite: {task.formatted_completion_date if task.required_date else 'N/A'}")
                 ttk.Label(task_item_frame,
                           text=details_text,
                           style="TaskDetail.TLabel",
@@ -408,7 +418,17 @@ class TaskManagementView(BaseView):
                     relief="solid"
                 )
                 task_item_frame.pack(fill="x", pady=2, padx=5, side="top", ipadx=5, ipady=5)
-    
+
+                task_delete_label = ttk.Label(task_item_frame, text="Eliminar", style="basic_text.TLabel",
+                                              background="red", foreground="white", cursor="hand2")
+                task_delete_label.pack(side="top", anchor="se")
+
+                # Obtenemos el id del task en el label
+                task_delete_label.task_id = task.task_id
+
+                # Asociamos el frame al evento de click con el mouse
+                task_delete_label.bind("<Button-1>", self._on_click_task_event)
+
                 ttk.Label(task_item_frame,
                           text=f"{task.title}",
                           style="TaskTitle.TLabel",
@@ -418,7 +438,7 @@ class TaskManagementView(BaseView):
     
                 details_text = \
                     (f" Prioridad: {task.priority} "
-                     f"| Fecha límite: {task.formatted_completion_date if task.completion_date else 'N/A'}")
+                     f"| Fecha límite: {task.formatted_completion_date if task.required_date else 'N/A'}")
                 ttk.Label(task_item_frame,
                           text=details_text,
                           style="TaskDetail.TLabel",
@@ -467,3 +487,21 @@ class TaskManagementView(BaseView):
                 widget.yview_scroll(-1 * event.delta, "units")
             else: # Windows
                 widget.yview_scroll(-1 * (event.delta // 120), "units")
+
+
+    def _on_click_task_event(self, event):
+        widget = event.widget
+        
+        print("DEBUG: Clicked task.")
+
+        # Subir hasta encontrar el frame que tiene el atributo `task_id`
+        while widget and not hasattr(widget, "task_id"):
+            widget = widget.master
+    
+        if widget and hasattr(widget, "task_id"):
+            task_id = widget.task_id
+
+            print(f"DEBUG: Clicked task: {task_id}")
+            
+            self.tasks_service.delete_task(task_id)
+            self._load_all_tasks()
