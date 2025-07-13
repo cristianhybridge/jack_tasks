@@ -1,5 +1,6 @@
 ﻿from src.models.tasks_entity import TaskEntity
 from typing import List, Dict, Optional
+import datetime
 
 class TasksRepository:
     def __init__(self):
@@ -10,10 +11,11 @@ class TasksRepository:
         return list(self._tasks) # Retorna una copia para evitar modificaciones directas
     
     def get_completed_tasks(self) -> List[TaskEntity]:
-        return list(filter(lambda task: not task.is_active, self._tasks))
+        return list(filter(lambda task: task.completion_date < datetime.datetime.now(),
+                           self._tasks))
     
     def get_pending_tasks(self) -> List[TaskEntity]:
-        return list(filter(lambda task: task.is_active, self._tasks))
+        return list(filter(lambda task: task.completion_date >= datetime.datetime.now(), self._tasks))
     
     def add_task(self, task: TaskEntity) -> TaskEntity:
         self._tasks.append(task)

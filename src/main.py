@@ -1,7 +1,6 @@
 import tkinter as tk
 
 from app_styles import configure_styles
-from views.main_view import MainView
 from views.tasks_view import TaskManagementView
 
 from repositories.tasks_repository import TasksRepository
@@ -27,12 +26,11 @@ class App(tk.Tk):
         self._views = {} # Diccionario para guardar instancias de las vistas
 
         self._create_views()
-        self.show_view("main") # Vista principal al iniciar aplicacion
+        self.show_view("tasks") # Vista principal al iniciar aplicacion
         
         # ------------------------------- Hardcodeado para pruebas
         
     def _create_views(self):
-        self._views["main"] = MainView(self, self.show_view)
         self._views["tasks"] = TaskManagementView(self, 
                                                   self.show_view, 
                                                   self.tasks_service)
