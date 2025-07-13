@@ -1,4 +1,4 @@
-﻿from models.tasks_entity import TaskEntity
+﻿from src.models.tasks_entity import TaskEntity
 from typing import List, Dict, Optional
 
 class TasksRepository:

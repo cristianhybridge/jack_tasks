@@ -1,16 +1,15 @@
 import datetime
 from tkcalendar import DateEntry
-from services.tasks_service import TasksService
-from services.users_service import UsersService
-from views.base_view import BaseView
+from src.services.tasks_service import TasksService
+from src.views.base_view import BaseView
 import tkinter as tk
 from tkinter import ttk
 
-from models.tasks_entity import TaskEntity
+from src.models.tasks_entity import TaskEntity
 
 class TaskManagementView(BaseView):
-    def __init__(self, master, show_view_callback, current_username, tasks_service: TasksService, users_service: UsersService):
-        super().__init__(master, show_view_callback, current_username)
+    def __init__(self, master, show_view_callback, tasks_service: TasksService):
+        super().__init__(master, show_view_callback)
         self.config(bg="#e0ffe0")
 
         self.tasks_service = tasks_service
@@ -206,7 +205,6 @@ class TaskManagementView(BaseView):
         # Frame: general_completed_task_frame (Inner frame inside completed canvas)
         self.general_completed_task_frame = ttk.Frame(self.task_completed_canvas, style="TFrame")
 
-        # Store the window ID for the completed canvas
         # IMPORTANT: Use task_completed_canvas.winfo_width() for width here!
         self.completed_canvas_frame_id = self.task_completed_canvas.create_window((0,0), window=self.general_completed_task_frame, anchor="nw", width=self.task_completed_canvas.winfo_width())
 
@@ -309,7 +307,6 @@ class TaskManagementView(BaseView):
         var_task_entity_title = self.task_title_entry.get("1.0", "end-1c").strip()
         var_task_entity_priority = self.task_priority_entry.get()
         var_task_entity_completion_date = self.task_completion_date_entry.get_date()
-        var_task_user_id = self.current_username
 
         var_completion_hour_str = self.task_completion_date_hour_var.get()
         var_completion_minute_str = self.task_completion_date_minute_var.get()
@@ -336,8 +333,7 @@ class TaskManagementView(BaseView):
                                   priority=var_task_entity_priority,
                                   is_active=True, # New tasks are active
                                   completion_date=var_complete_datetime,
-                                  created_at=datetime.datetime.now(),
-                                  created_by=var_task_user_id)
+                                  created_at=datetime.datetime.now())
 
             query_task = self.tasks_service.add_task(new_task)
 
@@ -414,8 +410,7 @@ class TaskManagementView(BaseView):
                 (f"Creado el: {task.formatted_created_at} "
                  f"| Prioridad: {task.priority} "
                  f"| Terminar antes de: {task.formatted_completion_date if task.completion_date else 'N/A'} "
-                 f"| Estado: {'Pendiente' if task.is_active else 'Completado'}"
-                 f"| Creado por: {task.created_by}")
+                 f"| Estado: {'Pendiente' if task.is_active else 'Completado'}")
             ttk.Label(task_item_frame,
                       text=details_text,
                       style="TaskDetail.TLabel",
@@ -467,8 +462,7 @@ class TaskManagementView(BaseView):
                 (f"Creado el: {task.formatted_created_at} "
                  f"| Prioridad: {task.priority} "
                  f"| Terminar antes de: {task.formatted_completion_date if task.completion_date else 'N/A'} "
-                 f"| Estado: {'Pendiente' if task.is_active else 'Completado'}"
-                 f"| Creado por: {task.created_by}")
+                 f"| Estado: {'Pendiente' if task.is_active else 'Completado'}")
             ttk.Label(task_item_frame,
                       text=details_text,
                       style="TaskDetail.TLabel",

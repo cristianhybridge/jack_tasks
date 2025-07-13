@@ -1,17 +1,16 @@
 import tkinter as tk
 from tkinter import ttk
-from app_styles import configure_styles
+from src.app_styles import configure_styles
 
 class BaseView(tk.Frame):
     """
     Clase base para todas las vistas (pantallas) de la aplicación.
     Provee funcionalidad común como el acceso al controlador de vistas.
     """
-    def __init__(self, master, show_view_callback, current_username):
+    def __init__(self, master, show_view_callback):
         super().__init__(master)
         self.master = master # La ventana principal (App)
         self.show_view_callback = show_view_callback # La función para cambiar de vista
-        self.current_username = current_username
 
         self._setup_layout()
 

@@ -9,8 +9,6 @@ class TaskEntity:
     title: str
     priority: str
     created_at: datetime
-    created_by: int # Referencia a user_id de users_entity
-    
     # Campos con valor por defecto
     # En este caso como no estamos usando SQL, puse un uuid para que no se repitiera
     task_id: str = field(default_factory=lambda: str(uuid.uuid4())) # Genera un ID por cada task nuevo
